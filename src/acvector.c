@@ -39,7 +39,7 @@ acvector_release(Vector_p v) {
 void *
 acvector_at(Vector_p v, size_t index) {
 	if(index >= v->nElements) return NULL;
-	return v->data + index * v->element_size;
+	return acvector_at_nocheck(v, index);
 }
 
 char
