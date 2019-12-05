@@ -19,15 +19,15 @@ typedef struct acVector {
 char acvector_init(acVector_p, size_t limit, size_t element_size);
 void acvector_release(acVector_p);
 
-void * acvector_at(acVector_p v, size_t);
+void * acvector_at(acVector_p, size_t index);
 
 char acvector_push_back(acVector_p, void *);
 char acvector_push(acVector_p, void *);
-char acvector_insert(acVector_p, size_t, void *);
+char acvector_insert(acVector_p, size_t index, void *);
 
 void * acvector_pop_back(acVector_p);
 void * acvector_pop(acVector_p);
-void * acvector_remove(acVector_p, size_t);
+void * acvector_remove(acVector_p, size_t index);
 
 void * acvector_iterator(acVector_p);
 void * acvector_next(acVector_p, void *);
