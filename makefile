@@ -18,6 +18,6 @@ $(SRC)%.o: $(SRC)%.c
 
 clean:
 	rm -rf $(BUILD)
-	rm $(wildcard $(SRC)/*.o)
+	rm -f $(wildcard $(SRC)/*.o)
 
 .PHONY: all clean
