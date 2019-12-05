@@ -16,8 +16,8 @@ typedef struct acVector {
 #define ACVECTOR_FOREACH(e, v) for(e = acvector_iterator(v); e; e = acvector_next(v, e))
 #define ACVECTOR_FOREACH_R(e, v) for(e = acvector_iterator_r(v); e; e = acvector_next_r(v, e))
 
-acVector_p acvector_init(size_t limit, size_t element_size);
-void acvector_release(acVector_p v);
+char acvector_init(acVector_p, size_t limit, size_t element_size);
+void acvector_release(acVector_p);
 
 void * acvector_at(acVector_p v, size_t);
 

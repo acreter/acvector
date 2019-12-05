@@ -9,29 +9,24 @@ inline char acvector_extend(acVector_p);
 inline char acvector_resize(acVector_p, size_t);
 inline void * acvector_at_nocheck(acVector_p, size_t);
 
-acVector_p
-acvector_init(size_t limit, size_t element_size) {
-	acVector_p v = malloc(sizeof(acVector));
-	if(!v) return NULL;
+char
+acvector_init(acVector_p v, size_t limit, size_t element_size) {
+	if(!v) return 0;
 
 	v->data = malloc(limit * element_size);
-	if(!v->data) {
-		free(v);
-		return NULL;
-	}
+	if(!v->data) return 0;
 
 	v->limit = limit;
 	v->nElements = 0;
 	v->element_size = element_size;
 
-	return v;
+	return 1;
 }
 
 void
 acvector_release(acVector_p v) {
 	free(v->data);
 	v->data = NULL;
-	free(v);
 
 	return;
 }
