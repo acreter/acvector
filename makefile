@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -O2 -Wall -Wextra
+CFLAGS := -O2 -Wall -Wextra -Winline
 SRC := src/
 BUILD := build/
 ARCHIVE := ar

@@ -5,9 +5,9 @@
 
 #define INDEX_LAST(v) (v->nElements - 1)
 
-char acvector_extend(acVector_p);
-char acvector_resize(acVector_p, size_t);
-void * acvector_at_nocheck(acVector_p, size_t);
+inline char acvector_extend(acVector_p);
+inline char acvector_resize(acVector_p, size_t);
+inline void * acvector_at_nocheck(acVector_p, size_t);
 
 acVector_p
 acvector_init(size_t limit, size_t element_size) {
@@ -133,13 +133,13 @@ acvector_trim(acVector_p v) {
 	return acvector_resize(v, v->nElements);
 }
 
-char
+inline char
 acvector_extend(acVector_p v) {
 	if(v->nElements < v->limit) return 1;
 	return acvector_resize(v, v->limit * ACVECTOR_EXTEND_FACTOR);
 }
 
-char
+inline char
 acvector_resize(acVector_p v, size_t new_size) {
 	if(v->nElements <= new_size) {
 		void * new = realloc(v->data, new_size * v->element_size);
@@ -154,7 +154,7 @@ acvector_resize(acVector_p v, size_t new_size) {
 	return 1;
 }
 
-void *
+inline void *
 acvector_at_nocheck(acVector_p v, size_t index) {
 	return v->data + index * v->element_size;
 }
