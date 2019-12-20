@@ -5,22 +5,22 @@
 
 #define INDEX_LAST(v) (v->nElements - 1)
 
-inline char acvector_extend(acVector_p);
-inline char acvector_resize(acVector_p, size_t);
+inline int acvector_extend(acVector_p);
+inline int acvector_resize(acVector_p, size_t);
 inline void * acvector_at_nocheck(acVector_p, size_t);
 
-char
+int
 acvector_init(acVector_p v, size_t limit, size_t element_size) {
-	if(!v) return 0;
+	if(!v) return 1;
 
 	v->data = malloc(limit * element_size);
-	if(!v->data) return 0;
+	if(!v->data) return 1;
 
 	v->limit = limit;
 	v->nElements = 0;
 	v->element_size = element_size;
 
-	return 1;
+	return 0;
 }
 
 void
@@ -37,12 +37,12 @@ acvector_at(acVector_p v, size_t index) {
 	return acvector_at_nocheck(v, index);
 }
 
-char
+int
 acvector_push_back(acVector_p v, void * element) {
 	return acvector_insert(v, v->nElements, element);
 }
 
-char
+int
 acvector_push(acVector_p v, void * element) {
 	return acvector_insert(v, 0, element);
 }
@@ -57,23 +57,23 @@ acvector_pop(acVector_p v) {
 	return acvector_remove(v, 0);
 }
 
-char
+int
 acvector_insert(acVector_p v, size_t index, void * element) {
 	void * at_index;
 	void * at_index_inc;
 
 	if(index <= v->nElements) {
-		if(!acvector_extend(v)) return 0;
+		if(!acvector_extend(v)) return 1;
 
 		at_index = acvector_at_nocheck(v, index);
 		at_index_inc = acvector_at_nocheck(v, index + 1);
 		memmove(at_index_inc, at_index, (v->nElements - index) * v->element_size);
 		memcpy(at_index, element, v->element_size);
 		v->nElements += 1;
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 void *
@@ -123,18 +123,18 @@ acvector_size_bytes(acVector_p v) {
 	return v->nElements * v->element_size;
 }
 
-char
+int
 acvector_trim(acVector_p v) {
 	return acvector_resize(v, v->nElements);
 }
 
-inline char
+inline int
 acvector_extend(acVector_p v) {
 	if(v->nElements < v->limit) return 1;
 	return acvector_resize(v, v->limit * ACVECTOR_EXTEND_FACTOR);
 }
 
-inline char
+inline int
 acvector_resize(acVector_p v, size_t new_size) {
 	if(v->nElements <= new_size) {
 		void * new = realloc(v->data, new_size * v->element_size);
@@ -142,11 +142,11 @@ acvector_resize(acVector_p v, size_t new_size) {
 			v->data = new;
 			v->limit = new_size;
 		} else {
-			return 0;
+			return 1;
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 inline void *
