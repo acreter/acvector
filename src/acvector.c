@@ -63,7 +63,7 @@ acvector_insert(acVector_p v, size_t index, void * element) {
 	void * at_index_inc;
 
 	if(index <= v->nElements) {
-		if(!acvector_extend(v)) return 1;
+		if(acvector_extend(v)) return 1;
 
 		at_index = acvector_at_nocheck(v, index);
 		at_index_inc = acvector_at_nocheck(v, index + 1);
@@ -130,7 +130,7 @@ acvector_trim(acVector_p v) {
 
 inline int
 acvector_extend(acVector_p v) {
-	if(v->nElements < v->limit) return 1;
+	if(v->nElements < v->limit) return 0;
 	return acvector_resize(v, v->limit * ACVECTOR_EXTEND_FACTOR);
 }
 
