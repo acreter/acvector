@@ -12,13 +12,13 @@ void acvector_release(acVector **);
 void * acvector_at(acVector **, unsigned long index);
 
 /* ADD */
-int acVector_push(acVector **, void *);
-int acVector_push_back(acVector **, void *);
+int acvector_push(acVector **, void *);
+int acvector_push_back(acVector **, void *);
 int acvector_insert(acVector **, unsigned long index, void *);
 
 /* REMOVE */
-void * acVector_pop_back(acVector **);
-void * acVector_pop(acVector **);
+void * acvector_pop_back(acVector **);
+void * acvector_pop(acVector **);
 void * acvector_remove(acVector **, unsigned long index);
 
 /* ITERATE */
