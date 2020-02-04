@@ -3,6 +3,13 @@
 
 typedef struct acVector acVector;
 
+struct acVector {
+	unsigned long limit, nElements;
+	unsigned int element_size;
+	unsigned char extension_factor;
+	unsigned char data[1];
+};
+
 /* META */
 /* returns a pointer to the new vector or NULL if the request failed */
 acVector * acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor);
@@ -36,7 +43,7 @@ void * acvector_next_r(acVector **, void *);
 
 /* UTIL */
 /* returns a pointer to the new vector or unsigned long acvector_size_bytes(acVector *);
- * NULL if the request failed. note that this implies that vec_p = "acvector_trim(vec_p)"
+ * NULL if the request failed. note that this implies that "vec_p = acvector_trim(vec_p)"
  * is bad practice */
 int acvector_trim(acVector **);
 unsigned long acvector_size_bytes(acVector **);

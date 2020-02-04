@@ -1,32 +1,22 @@
-CC := cc
 CFLAGS := -O2 -Wall -Wextra -Winline
-SRC := src/
-TEST := test/
-BUILD := build/
-ARCHIVE := ar
-AFLAGS := rcs
 
-NAME := acvector
+all: acvector
 
-all: $(NAME)
+acvector: src/acvector.o
+	mkdir -p build/
+	$(AR) rcs build/lib$@.a $^
 
-$(NAME): $(patsubst $(SRC)%.c,$(SRC)%.o, $(wildcard $(SRC)/*.c))
-	mkdir -p $(BUILD)
-	$(ARCHIVE) $(AFLAGS) $(BUILD)/lib$@.a $^
+test: test/test.o acvector
+	make -C actest
+	$(CC) -o test/test -Lbuild/ -Lactest/build $< -lacvector -lactest
+	test/test
 
-$(SRC)%.o: $(SRC)%.c
-	$(CC) $(CFLAGS) -o $@ -c $<
-
-test: all $(TEST)/test.o
-	$(CC) -o $(TEST)/test -L$(BUILD) $(TEST)/test.o -l$(NAME)
-	$(TEST)/test
-
-$(TEST)/test.o: $(TEST)/test.c
+%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -rf $(BUILD)
-	rm -f $(wildcard $(SRC)/*.o)
-	rm -f $(wildcard $(TEST)/*.o)
+	rm -rf build/
+	rm -f $(wildcard src/*.o)
+	rm -f $(wildcard test/*.o)
 
 .PHONY: all clean test

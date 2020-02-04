@@ -3,13 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct acVector {
-	unsigned long limit, nElements;
-	unsigned int element_size;
-	unsigned char extension_factor;
-	unsigned char data[1];
-};
-
 #define INDEX_LAST(v) ((**v).nElements - 1)
 
 int acvector_extend(acVector **);

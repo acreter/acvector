@@ -1,80 +1,97 @@
-#include <stdio.h>
 #include "../src/acvector.h"
+#include "../actest/src/actest.h"
 
-typedef enum {
-	PASSED,
-	FAILED
-} ASSERTION;
+#include <stdio.h>
 
-ASSERTION
-test_meta() {
-	acVector * test_vector = acvector_create(16, sizeof (int), 2);
-	if (!test_vector) return FAILED;
-	acvector_release(&test_vector);
-	return PASSED;
+char*
+test_add(void* data) {
+	if (!data) return "acvector_create failed";
+	acVector* test_vector = (acVector*) data;
+	int error;
+	int elements[] = {4,5,6};
+
+	error = acvector_insert(&test_vector, 3, elements);
+	if (error) return "acvector_insert failed";
+	if (((int*) test_vector->data)[3] != *elements) return "acvector_insert: wrong location";
+
+	error = acvector_push(&test_vector, elements + 1);
+	if (error) return "acvector_push failed";
+	printf("got %d expected %d", ((int*) test_vector->data)[0], elements[1]);
+	if (((int*) test_vector->data)[0] != elements[1]) return "acvector_push: wrong location";
+
+	error = acvector_push_back(&test_vector, elements + 2);
+	if (error) return "acvector_push_back failed";
+	if (((int*) test_vector->data)[7] != elements[2]) return "acvector_push_back: wrong location";
+
+	return 0;
 }
 
-ASSERTION
-test_add() {
-	int error = 0;
-	int elements[3] = {1,2,3};
-	acVector * test_vector = acvector_create(16, sizeof (int), 2);
-	if ((error = acvector_push(&test_vector, elements))) return FAILED;
-	if ((error = acvector_push_back(&test_vector, elements + 1))) return FAILED;
-	if ((error = acvector_insert(&test_vector, 1, elements + 2))) return FAILED;
-	acvector_release(&test_vector);
-
-	return PASSED;
-}
-
-ASSERTION
-test_read() {
-	int * result;
-	int elements[3] = {1,2,3};
-	acVector * test_vector = acvector_create(16, sizeof (int), 2);
-	acvector_push(&test_vector, elements);
-	acvector_push_back(&test_vector, elements + 1);
-	acvector_insert(&test_vector, 1, elements + 2);
+char*
+test_read(void* data) {
+	if (!data) return "acvector_create failed";
+	acVector* test_vector = (acVector*) data;
+	int* result;
 
 	result = acvector_at(&test_vector, 0);
-	if (*result != elements[0]) return FAILED;
+	if (!result) return "acvector_at 1: got NULL pointer on valid input";
+	if (*result != ((int*) test_vector->data)[0]) return "wrong output";
+
 	result = acvector_at(&test_vector, 1);
-	if (*result != elements[2]) return FAILED;
+	if (!result) return "acvector_at 2: got NULL pointer on valid input";
+	if (*result != ((int*) test_vector->data)[1]) return "wrong output";
+
 	result = acvector_at(&test_vector, 2);
-	if (*result != elements[1]) return FAILED;
+	if (!result) return "acvector_at 3: got NULL pointer on valid input";
+	if (*result != ((int*) test_vector->data)[2]) return "wrong output";
+
 	result = acvector_at(&test_vector, 3);
-	if (result) return FAILED;
+	if (!result) return "acvector_at 4: got NULL pointer on valid input";
+	if (*result != ((int*) test_vector->data)[3]) return "wrong output";
 
-	acvector_release(&test_vector);
-
-	return PASSED;
+	return 0;
 }
 
-int
-test(ASSERTION (*test_function)(), const char * name) {
-	if (test_function() == PASSED) {
-		printf("%s: \033[30;42mPASSED\033[0m\n", name);
-		return 0;
-	}
-	else {
-		printf("%s: \033[30;41mFAILED\033[0m\n", name);
-		return 1;
-	}
+void*
+prepare() {
+	acVector * test_vector = acvector_create(16, sizeof (int), 2);
 
+	if (!test_vector) return NULL;
+
+	int* test_vector_data = (int*) test_vector->data;
+
+	test_vector_data[0] = -1;
+	test_vector_data[1] = 0;
+	test_vector_data[2] = 1;
+	test_vector_data[3] = 2;
+	test_vector_data[4] = 3;
+
+	test_vector->nElements = 5;
+
+	return (void*) test_vector;
+}
+
+void
+release(void* data) {
+	acVector* test_vector = (acVector*) data;
+	acvector_release(&test_vector);
+	return;
 }
 
 int
 main() {
-	printf("\n#### RUNNING TESTS ####\n\n");
-	int error = 0;
-	error += test(test_meta, "test_meta");	
-	error += test(test_add, "test_add");	
-	error += test(test_read, "test_read");	
+	unsigned int number_of_tests = 2;
 
-	if (!error) {
-		printf("\033[30;42mALL TESTS PASSED!\033[0m\n");
-	} else {
-		printf("\033[30;41m%d TESTS FAILED!\033[0m\n", error);
+	unsigned short* test_results_failed_array;
+	test_results_failed_array = actest_run_bulk(prepare, release, number_of_tests, test_read, test_add);
+	
+	for (unsigned int i = 0; i < number_of_tests; ++i) {
+		if (test_results_failed_array[i]) {
+			free(test_results_failed_array);
+			return 1;
+		}
 	}
-	return error;
+
+	free(test_results_failed_array);
+
+	return 0;
 }
