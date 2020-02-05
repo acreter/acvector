@@ -1,18 +1,28 @@
 #include "acvector.h"
 
-#include <string.h>
 #include <stdlib.h>
-
-#define INDEX_LAST(v) ((**v).nElements - 1)
 
 int acvector_extend(acVector **);
 int acvector_resize(acVector **, unsigned long);
 
+static void
+memshift(AC_BYTE_T* src, unsigned long how_many, int how_far) {
+	short step = how_far > 0 ? -1 : 1;
+	AC_BYTE_T* block = how_far > 0 ? src + how_many - sizeof (AC_BYTE_T) : src;
+	for (unsigned long i = 0; i < how_many; ++i) {
+		*(block + how_far) = *(block);
+		block += step;
+	}
+
+	return;
+}
+
 acVector *
 acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor) {
+	if (!limit) return 0;
 	acVector * vector;
-	vector = malloc((sizeof *vector) + sizeof (unsigned char) * element_size * (limit -1));
-	if(!vector) return NULL;
+	vector = malloc((sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
+	if(!vector) return 0;
 
 	vector->limit = limit;
 	vector->nElements = 0;
@@ -25,14 +35,14 @@ acvector_create(unsigned long limit, unsigned int element_size, unsigned char ex
 void
 acvector_release(acVector ** v) {
 	free(*v);
-	*v = NULL;
+	*v = 0;
 
 	return;
 }
 
 void *
 acvector_at(acVector ** v, unsigned long index) {
-	if(index >= (**v).nElements) return NULL;
+	if(index >= (**v).nElements) return 0;
 	return (**v).data + index * (**v).element_size;
 }
 
@@ -58,18 +68,16 @@ acvector_pop(acVector ** v) {
 
 int
 acvector_insert(acVector ** v, unsigned long index, void * element) {
-	if(index <= (**v).nElements) {
+	if (index <= (**v).nElements) {
 		if (acvector_extend(v)) return 1;
 
-		unsigned char * i;
-		for (i = (**v).data + ((**v).nElements + 1) * (**v).element_size - 1; \
-			 i >= (**v).data + (index + 1) * (**v).element_size; --i) {
-			*i = *(i - (**v).element_size);
-		}
+		memshift((**v).data + index * (**v).element_size,
+				((**v).nElements - index) * (**v).element_size,
+				(**v).element_size);
 
 		unsigned int j;
 		for (j = 0; j < (**v).element_size; ++j) {
-			*((**v).data + (index + j) * (**v).element_size) = *((unsigned char *) element + j);
+			*((**v).data + index * (**v).element_size + j) = *(((AC_BYTE_T*) element) + j);
 		}
 		(**v).nElements += 1;
 		return 0;
@@ -81,18 +89,16 @@ acvector_insert(acVector ** v, unsigned long index, void * element) {
 void *
 acvector_remove(acVector ** v, unsigned long index) {
 	if (index < (**v).nElements) {
-		char * element = malloc((**v).element_size);
+		AC_BYTE_T* element = malloc((**v).element_size);
 
 		unsigned int j;
 		for (j = 0; j < (**v).element_size; ++j) {
-			*(element + j) = *((**v).data + (index + j) * (**v).element_size);
+			element[j] = ((**v).data + index * (**v).element_size)[j];
 		}
 
-		unsigned char * i;
-		for (i = (**v).data + index * (**v).element_size; \
-			 i < (**v).data + ((**v).nElements - 1) * (**v).element_size; ++i) {
-			*i = *(i + (**v).element_size);
-		}
+		memshift((**v).data + (index + 1) * (**v).element_size,
+				((**v).nElements - index - 1) * (**v).element_size,
+				-(**v).element_size);
 		
 		(**v).nElements -= 1;
 		return element;

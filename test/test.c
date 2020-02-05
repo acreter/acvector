@@ -4,19 +4,42 @@
 #include <stdio.h>
 
 char*
+test_remove(void* data) {
+	if (!data) return "acvector_create failed";
+	acVector* test_vector = (acVector*) data;
+	int* element;
+
+	element = acvector_remove(&test_vector, 3);
+	if (!element) return "acvector_remove failed";
+	if (*element != 2) return "acvector_remove: wrong element removed";
+	free(element);
+	
+	element = acvector_pop_back(&test_vector);
+	if (!element) return "acvector_pop_back failed";
+	if (*element != 3) return "acvector_pop_back: wrong element removed";
+	free(element);
+
+	element = acvector_pop(&test_vector);
+	if (!element) return "acvector_pop failed";
+	if (*element != -1) return "acvector_pop: wrong element removed";
+	free(element);
+
+	return 0;
+}
+
+char*
 test_add(void* data) {
 	if (!data) return "acvector_create failed";
 	acVector* test_vector = (acVector*) data;
 	int error;
 	int elements[] = {4,5,6};
 
-	error = acvector_insert(&test_vector, 3, elements);
+	error = acvector_insert(&test_vector, 2, elements);
 	if (error) return "acvector_insert failed";
-	if (((int*) test_vector->data)[3] != *elements) return "acvector_insert: wrong location";
+	if (((int*) test_vector->data)[2] != *elements) return "acvector_insert: wrong location";
 
 	error = acvector_push(&test_vector, elements + 1);
 	if (error) return "acvector_push failed";
-	printf("got %d expected %d", ((int*) test_vector->data)[0], elements[1]);
 	if (((int*) test_vector->data)[0] != elements[1]) return "acvector_push: wrong location";
 
 	error = acvector_push_back(&test_vector, elements + 2);
@@ -67,7 +90,7 @@ prepare() {
 
 	test_vector->nElements = 5;
 
-	return (void*) test_vector;
+	return test_vector;
 }
 
 void
@@ -79,10 +102,10 @@ release(void* data) {
 
 int
 main() {
-	unsigned int number_of_tests = 2;
+	unsigned int number_of_tests = 3;
 
 	unsigned short* test_results_failed_array;
-	test_results_failed_array = actest_run_bulk(prepare, release, number_of_tests, test_read, test_add);
+	test_results_failed_array = actest_run_bulk(prepare, release, number_of_tests, test_read, test_add, test_remove);
 	
 	for (unsigned int i = 0; i < number_of_tests; ++i) {
 		if (test_results_failed_array[i]) {

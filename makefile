@@ -1,4 +1,4 @@
-CFLAGS := -O2 -Wall -Wextra -Winline
+CFLAGS := -g -O0 -Wall -Wextra -Winline
 
 all: acvector
 

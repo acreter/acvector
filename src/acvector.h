@@ -2,12 +2,13 @@
 #define _VECTOR_H_INCLUDED
 
 typedef struct acVector acVector;
+typedef unsigned char AC_BYTE_T;
 
 struct acVector {
 	unsigned long limit, nElements;
 	unsigned int element_size;
-	unsigned char extension_factor;
-	unsigned char data[1];
+	unsigned short extension_factor;
+	AC_BYTE_T data[1];
 };
 
 /* META */
