@@ -1,91 +1,106 @@
 #include "acvector.h"
 
-#include <string.h>
 #include <stdlib.h>
 
-#define INDEX_LAST(v) (v->nElements - 1)
+int acvector_extend(acVector **);
+int acvector_resize(acVector **, unsigned long);
 
-inline int acvector_extend(acVector_p);
-inline int acvector_resize(acVector_p, size_t);
-inline void * acvector_at_nocheck(acVector_p, size_t);
+static void
+memshift(AC_BYTE_T* src, unsigned long how_many, int how_far) {
+	short step = how_far > 0 ? -1 : 1;
+	AC_BYTE_T* block = how_far > 0 ? src + how_many - sizeof (AC_BYTE_T) : src;
+	for (unsigned long i = 0; i < how_many; ++i) {
+		*(block + how_far) = *(block);
+		block += step;
+	}
 
-int
-acvector_init(acVector_p v, size_t limit, size_t element_size) {
-	if(!v) return 1;
+	return;
+}
 
-	v->data = malloc(limit * element_size);
-	if(!v->data) return 1;
+acVector *
+acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor) {
+	if (!limit) return 0;
+	acVector * vector;
+	vector = malloc((sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
+	if(!vector) return 0;
 
-	v->limit = limit;
-	v->nElements = 0;
-	v->element_size = element_size;
+	vector->limit = limit;
+	vector->nElements = 0;
+	vector->element_size = element_size;
+	vector->extension_factor = extension_factor;
 
-	return 0;
+	return vector;
 }
 
 void
-acvector_release(acVector_p v) {
-	free(v->data);
-	v->data = NULL;
+acvector_release(acVector ** v) {
+	free(*v);
+	*v = 0;
 
 	return;
 }
 
 void *
-acvector_at(acVector_p v, size_t index) {
-	if(index >= v->nElements) return NULL;
-	return acvector_at_nocheck(v, index);
+acvector_at(acVector ** v, unsigned long index) {
+	if(index >= (**v).nElements) return 0;
+	return (**v).data + index * (**v).element_size;
 }
 
 int
-acvector_push_back(acVector_p v, void * element) {
-	return acvector_insert(v, v->nElements, element);
+acvector_push_back(acVector ** v, void * element) {
+	return acvector_insert(v, (**v).nElements, element);
 }
 
 int
-acvector_push(acVector_p v, void * element) {
+acvector_push(acVector ** v, void * element) {
 	return acvector_insert(v, 0, element);
 }
 
 void *
-acvector_pop_back(acVector_p v) {
-	return acvector_remove(v, INDEX_LAST(v));
+acvector_pop_back(acVector ** v) {
+	return acvector_remove(v, (**v).nElements - 1);
 }
 
 void *
-acvector_pop(acVector_p v) {
+acvector_pop(acVector ** v) {
 	return acvector_remove(v, 0);
 }
 
 int
-acvector_insert(acVector_p v, size_t index, void * element) {
-	void * at_index;
-	void * at_index_inc;
+acvector_insert(acVector ** v, unsigned long index, void * element) {
+	if (index <= (**v).nElements) {
+		if (acvector_extend(v)) return 1;
 
-	if(index <= v->nElements) {
-		if(acvector_extend(v)) return 1;
+		memshift((**v).data + index * (**v).element_size,
+				((**v).nElements - index) * (**v).element_size,
+				(**v).element_size);
 
-		at_index = acvector_at_nocheck(v, index);
-		at_index_inc = acvector_at_nocheck(v, index + 1);
-		memmove(at_index_inc, at_index, (v->nElements - index) * v->element_size);
-		memcpy(at_index, element, v->element_size);
-		v->nElements += 1;
+		unsigned int j;
+		for (j = 0; j < (**v).element_size; ++j) {
+			*((**v).data + index * (**v).element_size + j) = *(((AC_BYTE_T*) element) + j);
+		}
+		(**v).nElements += 1;
 		return 0;
 	}
 
-	return 1;
+	return 2;
 }
 
 void *
-acvector_remove(acVector_p v, size_t index) {
-	void * element;
-	void * buffer;
+acvector_remove(acVector ** v, unsigned long index) {
+	if (index < (**v).nElements) {
+		AC_BYTE_T* element = malloc((**v).element_size);
 
-	if((buffer = acvector_at(v, index))) {
-		element = malloc(v->element_size);
-		memcpy(element, buffer, v->element_size);
-		memmove(buffer, buffer + v->element_size, (INDEX_LAST(v) - index) * v->element_size);
-		v->nElements -= 1;
+		unsigned int j;
+		for (j = 0; j < (**v).element_size; ++j) {
+			element[j] = ((**v).data + index * (**v).element_size)[j];
+		}
+
+		memshift((**v).data + (index + 1) * (**v).element_size,
+				((**v).nElements - index - 1) * (**v).element_size,
+				-(**v).element_size);
+		
+		(**v).nElements -= 1;
 		return element;
 	}
 
@@ -93,63 +108,63 @@ acvector_remove(acVector_p v, size_t index) {
 }
 
 void *
-acvector_iterator(acVector_p v) {
-	if(!(v->nElements)) return NULL;
+acvector_iterator(acVector ** v) {
+	if(!((**v).nElements)) return NULL;
 	return acvector_at(v, 0);
 }
 
 void *
-acvector_next(acVector_p v, void * current) {
-	if(!current || (current - v->data) / v->element_size >= INDEX_LAST(v)) return NULL;
+acvector_next(acVector ** v, void * current) {
+	if(!current || (unsigned char *) current < (**v).data \
+				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+		return NULL;
+	}
 
-	return current + v->element_size;
+	return current + (**v).element_size;
 }
 
 void *
-acvector_iterator_r(acVector_p v) {
-	if(!(v->nElements)) return NULL;
-	return acvector_at(v, INDEX_LAST(v));
+acvector_iterator_r(acVector ** v) {
+	if(!((**v).nElements)) return NULL;
+	return acvector_at(v, (**v).nElements - 1);
 }
 
 void *
-acvector_next_r(acVector_p v, void * current) {
-	if(!current || current <= v->data) return NULL;
+acvector_next_r(acVector ** v, void * current) {
+	if(!current || (unsigned char *) current < (**v).data + (**v).element_size \
+				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+		return NULL;
+	}
 
-	return current - v->element_size;
+	return current - (**v).element_size;
 }
 
-size_t
-acvector_size_bytes(acVector_p v) {
-	return v->nElements * v->element_size;
+unsigned long
+acvector_size_bytes(acVector ** v) {
+	return (**v).nElements * (**v).element_size;
 }
 
 int
-acvector_trim(acVector_p v) {
-	return acvector_resize(v, v->nElements);
+acvector_trim(acVector ** v) {
+	return acvector_resize(v, (**v).nElements);
 }
 
-inline int
-acvector_extend(acVector_p v) {
-	if(v->nElements < v->limit) return 0;
-	return acvector_resize(v, v->limit * ACVECTOR_EXTEND_FACTOR);
+int
+acvector_extend(acVector ** v) {
+	if((**v).nElements < (**v).limit) return 0;
+	return acvector_resize(v, (**v).limit * (**v).extension_factor);
 }
 
-inline int
-acvector_resize(acVector_p v, size_t new_size) {
-	if(v->nElements <= new_size) {
-		void * new = realloc(v->data, new_size * v->element_size);
+int
+acvector_resize(acVector ** v, unsigned long new_size) {
+	if((**v).nElements <= new_size) {
+		acVector * new = realloc(*v, (sizeof **v) + sizeof (unsigned char) * (**v).element_size * (new_size - 1));
 		if(new) {
-			v->data = new;
-			v->limit = new_size;
-		} else {
-			return 1;
+			*v = new;
+			return 0;
 		}
+		return 1;
 	}
 
-	return 0;
-}
-
-inline void *
-acvector_at_nocheck(acVector_p v, size_t index) {
-	return v->data + index * v->element_size;
+	return 2;
 }
