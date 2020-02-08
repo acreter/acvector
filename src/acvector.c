@@ -158,7 +158,7 @@ acvector_extend(acVector ** v) {
 int
 acvector_resize(acVector ** v, unsigned long new_size) {
 	if((**v).nElements <= new_size) {
-		acVector * new = realloc(*v, (sizeof **v) + sizeof (unsigned char) * (**v).element_size * (new_size - 1));
+		acVector * new = realloc(*v, (sizeof **v) + sizeof (AC_BYTE_T) * (**v).element_size * new_size - 1);
 		if(new) {
 			*v = new;
 			return 0;
