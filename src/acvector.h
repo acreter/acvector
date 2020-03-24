@@ -5,6 +5,7 @@ typedef struct acVector acVector;
 typedef unsigned char AC_BYTE_T;
 
 struct acVector {
+	AC_BYTE_T immutable;
 	unsigned long limit, nElements;
 	unsigned int element_size;
 	unsigned short extension_factor;

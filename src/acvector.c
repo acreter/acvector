@@ -24,6 +24,7 @@ acvector_create(unsigned long limit, unsigned int element_size, unsigned char ex
 	vector = malloc((sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
 	if(!vector) return 0;
 
+	vector->immutable = 0;
 	vector->limit = limit;
 	vector->nElements = 0;
 	vector->element_size = element_size;
@@ -68,6 +69,7 @@ acvector_pop(acVector ** v) {
 
 int
 acvector_insert(acVector ** v, unsigned long index, void * element) {
+	if ((**v).immutable) return 3;
 	if (index <= (**v).nElements) {
 		if (acvector_extend(v)) return 1;
 
@@ -88,6 +90,7 @@ acvector_insert(acVector ** v, unsigned long index, void * element) {
 
 void *
 acvector_remove(acVector ** v, unsigned long index) {
+	if ((**v).immutable) return NULL;
 	if (index < (**v).nElements) {
 		AC_BYTE_T* element = malloc((**v).element_size);
 
@@ -146,6 +149,7 @@ acvector_size_bytes(acVector ** v) {
 
 int
 acvector_trim(acVector ** v) {
+	if ((**v).immutable) return 3;
 	return acvector_resize(v, (**v).nElements);
 }
 
