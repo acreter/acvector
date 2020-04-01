@@ -21,7 +21,7 @@ acVector *
 acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor) {
 	if (!limit) return 0;
 	acVector * vector;
-	vector = malloc((sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
+	vector = calloc(1, (sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
 	if(!vector) return 0;
 
 	vector->immutable = 0;
@@ -118,8 +118,8 @@ acvector_iterator(acVector ** v) {
 
 void *
 acvector_next(acVector ** v, void * current) {
-	if(!current || (unsigned char *) current < (**v).data \
-				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+	if(!current || (AC_BYTE_T *) current < (**v).data \
+				|| (AC_BYTE_T *) current >= (**v).data + ((**v).nElements - 1) * (**v).element_size) {
 		return NULL;
 	}
 
@@ -134,8 +134,8 @@ acvector_iterator_r(acVector ** v) {
 
 void *
 acvector_next_r(acVector ** v, void * current) {
-	if(!current || (unsigned char *) current < (**v).data + (**v).element_size \
-				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+	if(!current || (AC_BYTE_T *) current < (**v).data + (**v).element_size \
+				|| (AC_BYTE_T *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
 		return NULL;
 	}
 
@@ -150,7 +150,7 @@ acvector_size_bytes(acVector ** v) {
 int
 acvector_trim(acVector ** v) {
 	if ((**v).immutable) return 3;
-	return acvector_resize(v, (**v).nElements);
+	return acvector_resize(v, (**v).nElements + 1);
 }
 
 int
@@ -164,6 +164,7 @@ acvector_resize(acVector ** v, unsigned long new_size) {
 	if((**v).nElements <= new_size) {
 		acVector * new = realloc(*v, (sizeof **v) + sizeof (AC_BYTE_T) * (**v).element_size * new_size - 1);
 		if(new) {
+			(**v).limit = new_size;
 			*v = new;
 			return 0;
 		}
