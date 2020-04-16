@@ -1,27 +1,16 @@
 #include "acvector.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 int acvector_extend(acVector **);
 int acvector_resize(acVector **, unsigned long);
-
-static void
-memshift(AC_BYTE_T* src, unsigned long how_many, int how_far) {
-	short step = how_far > 0 ? -1 : 1;
-	AC_BYTE_T* block = how_far > 0 ? src + how_many - sizeof (AC_BYTE_T) : src;
-	for (unsigned long i = 0; i < how_many; ++i) {
-		*(block + how_far) = *(block);
-		block += step;
-	}
-
-	return;
-}
 
 acVector *
 acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor) {
 	if (!limit) return 0;
 	acVector * vector;
-	vector = malloc((sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
+	vector = calloc(1, (sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
 	if(!vector) return 0;
 
 	vector->immutable = 0;
@@ -73,14 +62,11 @@ acvector_insert(acVector ** v, unsigned long index, void * element) {
 	if (index <= (**v).nElements) {
 		if (acvector_extend(v)) return 1;
 
-		memshift((**v).data + index * (**v).element_size,
-				((**v).nElements - index) * (**v).element_size,
-				(**v).element_size);
+		memmove((**v).data + (index + 1) * (**v).element_size,
+				(**v).data + index * (**v).element_size,
+				(**v).element_size * ((**v).nElements - index));
+		memcpy((**v).data + index * (**v).element_size, element, (**v).element_size);
 
-		unsigned int j;
-		for (j = 0; j < (**v).element_size; ++j) {
-			*((**v).data + index * (**v).element_size + j) = *(((AC_BYTE_T*) element) + j);
-		}
 		(**v).nElements += 1;
 		return 0;
 	}
@@ -94,15 +80,11 @@ acvector_remove(acVector ** v, unsigned long index) {
 	if (index < (**v).nElements) {
 		AC_BYTE_T* element = malloc((**v).element_size);
 
-		unsigned int j;
-		for (j = 0; j < (**v).element_size; ++j) {
-			element[j] = ((**v).data + index * (**v).element_size)[j];
-		}
+		memcpy(element, (**v).data + index * (**v).element_size, (**v).element_size);
+		memmove((**v).data + index * (**v).element_size,
+				(**v).data + (index + 1) * (**v).element_size,
+				(**v).element_size * ((**v).nElements - index - 1));
 
-		memshift((**v).data + (index + 1) * (**v).element_size,
-				((**v).nElements - index - 1) * (**v).element_size,
-				-(**v).element_size);
-		
 		(**v).nElements -= 1;
 		return element;
 	}
@@ -118,8 +100,8 @@ acvector_iterator(acVector ** v) {
 
 void *
 acvector_next(acVector ** v, void * current) {
-	if(!current || (unsigned char *) current < (**v).data \
-				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+	if(!current || (AC_BYTE_T *) current < (**v).data \
+				|| (AC_BYTE_T *) current >= (**v).data + ((**v).nElements - 1) * (**v).element_size) {
 		return NULL;
 	}
 
@@ -134,8 +116,8 @@ acvector_iterator_r(acVector ** v) {
 
 void *
 acvector_next_r(acVector ** v, void * current) {
-	if(!current || (unsigned char *) current < (**v).data + (**v).element_size \
-				|| (unsigned char *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
+	if(!current || (AC_BYTE_T *) current < (**v).data + (**v).element_size \
+				|| (AC_BYTE_T *) current > (**v).data + ((**v).nElements - 1) * (**v).element_size) {
 		return NULL;
 	}
 
