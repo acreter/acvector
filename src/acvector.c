@@ -132,7 +132,7 @@ acvector_size_bytes(acVector ** v) {
 int
 acvector_trim(acVector ** v) {
 	if ((**v).immutable) return 3;
-	return acvector_resize(v, (**v).nElements);
+	return acvector_resize(v, (**v).nElements + 1);
 }
 
 int
@@ -146,6 +146,7 @@ acvector_resize(acVector ** v, unsigned long new_size) {
 	if((**v).nElements <= new_size) {
 		acVector * new = realloc(*v, (sizeof **v) + sizeof (AC_BYTE_T) * (**v).element_size * new_size - 1);
 		if(new) {
+			(**v).limit = new_size;
 			*v = new;
 			return 0;
 		}
