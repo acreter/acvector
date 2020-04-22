@@ -10,7 +10,7 @@ acVector *
 acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor) {
 	if (!limit) return 0;
 	acVector * vector;
-	vector = calloc(1, (sizeof *vector) + sizeof (AC_BYTE_T) * element_size * limit - 1);
+	vector = calloc(1, sizeof (acVector) + sizeof (AC_BYTE_T) * element_size * limit - 1 * sizeof (AC_BYTE_T));
 	if(!vector) return 0;
 
 	vector->immutable = 0;
@@ -144,9 +144,9 @@ acvector_extend(acVector ** v) {
 int
 acvector_resize(acVector ** v, unsigned long new_size) {
 	if((**v).nElements <= new_size) {
-		acVector * new = realloc(*v, (sizeof **v) + sizeof (AC_BYTE_T) * (**v).element_size * new_size - 1);
+		acVector * new = realloc(*v, sizeof (acVector) + sizeof (AC_BYTE_T) * (**v).element_size * new_size - 1 * sizeof (AC_BYTE_T));
 		if(new) {
-			(**v).limit = new_size;
+			new->limit = new_size;
 			*v = new;
 			return 0;
 		}
