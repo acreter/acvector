@@ -39,7 +39,7 @@ void * acvector_iterator_r(acVector **);
 void * acvector_next_r(acVector **, void *);
 
 /* quick macros to iterate over all elements of a vector. e holds a pointer to
- * the current element and v is the vector */
+ * the current element and v is a pointer to the vector */
 #define ACVECTOR_FOREACH(e, v) for(e = acvector_iterator(&(v)); e; e = acvector_next(&(v), e))
 #define ACVECTOR_FOREACH_R(e, v) for(e = acvector_iterator_r(&(v)); e; e = acvector_next_r(&(v), e))
 
