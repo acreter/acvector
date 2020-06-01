@@ -44,10 +44,6 @@ void * acvector_next_r(acVector **, void *);
 #define ACVECTOR_FOREACH_R(e, v) for(e = acvector_iterator_r(&(v)); e; e = acvector_next_r(&(v), e))
 
 /* UTIL */
-/* returns a pointer to the new vector or unsigned long acvector_size_bytes(acVector *);
- * NULL if the request failed. note that this implies that "vec_p = acvector_trim(vec_p)"
- * is bad practice */
 int acvector_trim(acVector **);
 unsigned long acvector_size_bytes(acVector **);
-
 #endif
