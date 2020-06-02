@@ -28,8 +28,8 @@ void*     acvector_prev         (acVector** vector, void* element);
 
 /* modifiers */
 void      acvector_clear        (acVector** vector);
-int       acvector_insert       (acVector** vector, unsigned long index, void* element);
-int       acvector_remove       (acVector** vector, unsigned long index);
+void      acvector_insert       (acVector** vector, unsigned long index, void* element);
+void      acvector_remove       (acVector** vector, unsigned long index);
 
 /* macros
  * vector  is of type acVector**

@@ -62,11 +62,11 @@ acvector_clear(acVector** v) {
 	(*v)->number_of_elements = 0;
 }
 
-int
+void
 acvector_insert(acVector** v, unsigned long i, void* e) {
 	if ((*v)->number_of_elements >= (*v)->limit) {
 		acVector* new = realloc(*v, sizeof (acVector) + (*v)->limit * (*v)->size_of_element * AC_EXTENSION_FACTOR - 1);
-		if (!new) return 1;
+		if (!new) return;
 		new->limit *= AC_EXTENSION_FACTOR;
 		*v = new;
 	}
@@ -75,12 +75,12 @@ acvector_insert(acVector** v, unsigned long i, void* e) {
 	memcpy(acvector_get_at(v, i), e, (*v)->size_of_element);
 
 	(*v)->number_of_elements += 1;
-	return 0;
+	return;
 }
 
-int
+void
 acvector_remove(acVector** v, unsigned long i) {
-	if (!memmove(acvector_get_at(v, i), acvector_get_at(v, i + 1), (*v)->size_of_element * ((*v)->number_of_elements - i))) return 1;
+	memmove(acvector_get_at(v, i), acvector_get_at(v, i + 1), (*v)->size_of_element * ((*v)->number_of_elements - i));
 	(*v)->number_of_elements -= 1;
-	return 0;
+	return;
 }
