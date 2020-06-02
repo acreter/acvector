@@ -2,7 +2,7 @@ CFLAGS := -O3 -Wall
 
 all: build/libacvector.a
 
-build/libacvector.a: src/acvector.o
+build/libacvector.a: src/acvector.o makefile
 	mkdir -p build/
 	$(AR) rcs $@ $^
 
