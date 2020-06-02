@@ -1,49 +1,43 @@
-#ifndef _VECTOR_H_INCLUDED
-#define _VECTOR_H_INCLUDED
+#ifndef __ACVECTOR_H_INCLUDED
+#define __ACVECTOR_H_INCLUDED 1
 
+#define AC_EXTENSION_FACTOR 2
 typedef struct acVector acVector;
-typedef unsigned char AC_BYTE_T;
 
 struct acVector {
-	AC_BYTE_T immutable;
-	unsigned long limit, nElements;
-	unsigned int element_size;
-	unsigned short extension_factor;
-	AC_BYTE_T data[1];
+	unsigned long number_of_elements, limit;
+	unsigned int size_of_element;
+	char data[1];
 };
 
-/* META */
-/* returns a pointer to the new vector or NULL if the request failed */
-acVector * acvector_create(unsigned long limit, unsigned int element_size, unsigned char extension_factor);
-void acvector_release(acVector **);
+/* --------------------------------------------------------- */
 
-/* READ */
-void * acvector_at(acVector **, unsigned long index);
+/* meta */
+acVector* acvector_create       (unsigned long limit, unsigned int size_of_element);
+void      acvector_destroy      (acVector** vector);
 
-/* ADD */
-int acvector_push(acVector **, void *);
-int acvector_push_back(acVector **, void *);
-int acvector_insert(acVector **, unsigned long index, void *);
+/* access */
+void*     acvector_get_at       (acVector** vector, unsigned long index);
+void*     acvector_get_first    (acVector** vector);
+void*     acvector_get_last     (acVector** vector);
+void      acvector_copy_element (acVector** vector, void* dest, void* src);
 
-/* REMOVE */
-void * acvector_pop_back(acVector **);
-void * acvector_pop(acVector **);
-void * acvector_remove(acVector **, unsigned long index);
+/* iterator */
+void*     acvector_next         (acVector** vector, void* element);
+void*     acvector_prev         (acVector** vector, void* element);
 
-/* ITERATE */
-/* all iterate functions either return a pointer to the next element or NULL
- * if such an element does not exist */
-void * acvector_iterator(acVector **);
-void * acvector_next(acVector **, void *);
-void * acvector_iterator_r(acVector **);
-void * acvector_next_r(acVector **, void *);
+/* modifiers */
+void      acvector_clear        (acVector** vector);
+int       acvector_insert       (acVector** vector, unsigned long index, void* element);
+int       acvector_remove       (acVector** vector, unsigned long index);
 
-/* quick macros to iterate over all elements of a vector. e holds a pointer to
- * the current element and v is a pointer to the vector */
-#define ACVECTOR_FOREACH(e, v) for(e = acvector_iterator(&(v)); e; e = acvector_next(&(v), e))
-#define ACVECTOR_FOREACH_R(e, v) for(e = acvector_iterator_r(&(v)); e; e = acvector_next_r(&(v), e))
+/* macros
+ * vector  is of type acVector**
+ * element is of type void* */
+#define acvector_remove_last(vector) acvector_remove((vector), ((*(vector))->number_of_elements - 1))
+#define acvector_remove_first(vector) acvector_remove((vector), 0)
+#define acvector_append(vector, element) acvector_insert((vector), (*(vector))->number_of_elements, element)
+#define acvector_prepend(vector, element) acvector_insert((vector), 0, element)
 
-/* UTIL */
-int acvector_trim(acVector **);
-unsigned long acvector_size_bytes(acVector **);
+/* --------------------------------------------------------- */
 #endif
