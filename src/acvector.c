@@ -80,7 +80,7 @@ acvector_insert(acVector** v, unsigned long i, void* e) {
 
 void
 acvector_remove(acVector** v, unsigned long i) {
-	memmove(acvector_get_at(v, i), acvector_get_at(v, i + 1), (*v)->size_of_element * ((*v)->number_of_elements - i));
+	memmove(acvector_get_at(v, i), acvector_get_at(v, i + 1), (*v)->size_of_element * ((*v)->number_of_elements - i - 1));
 	(*v)->number_of_elements -= 1;
 	return;
 }
