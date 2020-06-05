@@ -56,7 +56,7 @@ main() {
 	printf("current vector elements:\n");
 	for (point_ptr = acvector_get_first(&vector);
 			point_ptr <= (Point2D*) acvector_get_last(&vector);
-			point_ptr = acvector_next(&vector, point_ptr)) {
+			point_ptr += 1) {
 		printf("(%2i,%2i)\n", point_ptr->x, point_ptr->y);
 	}
 

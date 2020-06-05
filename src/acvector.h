@@ -22,10 +22,6 @@ void*     acvector_get_first    (acVector** vector);
 void*     acvector_get_last     (acVector** vector);
 void      acvector_copy_element (acVector** vector, void* dest, void* src);
 
-/* iterator */
-void*     acvector_next         (acVector** vector, void* element);
-void*     acvector_prev         (acVector** vector, void* element);
-
 /* modifiers */
 void      acvector_clear        (acVector** vector);
 void      acvector_insert       (acVector** vector, unsigned long index, void* element);

@@ -45,17 +45,6 @@ acvector_copy_element(acVector** v, void* d, void* s) {
 	return;
 }
 
-/* iterator */
-void*
-acvector_next(acVector** v, void* e) {
-	return e + (*v)->size_of_element;
-}
-
-void*
-acvector_prev(acVector** v, void* e) {
-	return e - (*v)->size_of_element;
-}
-
 /* modifiers */
 void
 acvector_clear(acVector** v) {
