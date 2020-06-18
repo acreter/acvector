@@ -1,4 +1,4 @@
-CFLAGS := -O3 -Wall
+CFLAGS := -O2 -Wall -std=c99 -pedantic -Wno-deprecated-declarations -D_POSIX_C_SOURCE=200809L
 
 all: build/libacvector.a example
 

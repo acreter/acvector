@@ -7,7 +7,7 @@ typedef struct acVector acVector;
 struct acVector {
 	unsigned long number_of_elements, limit;
 	unsigned int size_of_element;
-	char data[1];
+	char data[];
 };
 
 /* --------------------------------------------------------- */

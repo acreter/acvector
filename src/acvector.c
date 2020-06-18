@@ -5,7 +5,7 @@
 /* meta */
 acVector*
 acvector_create(unsigned long l, unsigned int soe) {
-	acVector* v = calloc(1, sizeof (acVector) + l * soe - 1);
+	acVector* v = calloc(1, sizeof (acVector) + l * soe);
 	if(v) {
 		v->limit = l;
 		v->number_of_elements = 0;
@@ -54,7 +54,7 @@ acvector_clear(acVector** v) {
 void
 acvector_insert(acVector** v, unsigned long i, void* e) {
 	if ((*v)->number_of_elements >= (*v)->limit) {
-		acVector* new = realloc(*v, sizeof (acVector) + (*v)->limit * (*v)->size_of_element * AC_EXTENSION_FACTOR - 1);
+		acVector* new = realloc(*v, sizeof (acVector) + (*v)->limit * (*v)->size_of_element * AC_EXTENSION_FACTOR);
 		if (!new) return;
 		new->limit *= AC_EXTENSION_FACTOR;
 		*v = new;
