@@ -24,16 +24,16 @@ void      acvector_copy_element (acVector** vector, void* dest, void* src);
 
 /* modifiers */
 void      acvector_clear        (acVector** vector);
-void      acvector_insert       (acVector** vector, unsigned long index, void* element);
-void      acvector_remove       (acVector** vector, unsigned long index);
+void      acvector_insert       (acVector** vector, unsigned long index, void* elements, unsigned long number_of_elements);
+void      acvector_remove       (acVector** vector, unsigned long index, unsigned long number_of_elements);
 
 /* macros
  * vector  is of type acVector**
  * element is of type void* */
-#define acvector_remove_last(vector) acvector_remove((vector), ((*(vector))->number_of_elements - 1))
-#define acvector_remove_first(vector) acvector_remove((vector), 0)
-#define acvector_append(vector, element) acvector_insert((vector), (*(vector))->number_of_elements, element)
-#define acvector_prepend(vector, element) acvector_insert((vector), 0, element)
+#define acvector_remove_last(vector) acvector_remove((vector), ((*(vector))->number_of_elements - 1), 1)
+#define acvector_remove_first(vector) acvector_remove((vector), 0, 1)
+#define acvector_append(vector, element) acvector_insert((vector), (*(vector))->number_of_elements, element, 1)
+#define acvector_prepend(vector, element) acvector_insert((vector), 0, element, 1)
 
 /* --------------------------------------------------------- */
 #endif
