@@ -30,10 +30,10 @@ void      acvector_remove       (acVector** vector, unsigned long index, unsigne
 /* macros
  * vector  is of type acVector**
  * element is of type void* */
-#define acvector_remove_last(vector) acvector_remove((vector), ((*(vector))->number_of_elements - 1), 1)
-#define acvector_remove_first(vector) acvector_remove((vector), 0, 1)
-#define acvector_append(vector, element) acvector_insert((vector), (*(vector))->number_of_elements, element, 1)
-#define acvector_prepend(vector, element) acvector_insert((vector), 0, element, 1)
+#define acvector_remove_from_back(vector, n_elements) acvector_remove((vector), ((*(vector))->number_of_elements - n_elements), n_elements)
+#define acvector_remove_from_front(vector, n_elements) acvector_remove((vector), 0, n_elements)
+#define acvector_append(vector, elements, n_elements) acvector_insert((vector), (*(vector))->number_of_elements, elements, n_elements)
+#define acvector_prepend(vector, elements, n_elements) acvector_insert((vector), 0, elements, n_elements)
 
 /* --------------------------------------------------------- */
 #endif

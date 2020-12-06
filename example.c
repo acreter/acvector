@@ -31,10 +31,10 @@ main() {
 	/* we fill our vector.
 	 * it will expand itself to be able to hold all elements */
 	for (unsigned int i = 0; i < array_of_points_length; i += 1) {
-		acvector_append(&vector, array_of_points + i);
+		acvector_append(&vector, array_of_points + i, 1);
 		/* since the vector stores proper copys of the elements,
 		 * we can add the same points multiple times */
-		acvector_prepend(&vector, array_of_points + i);
+		acvector_prepend(&vector, array_of_points + i, 1);
 	}
 
 	/* "point_ptr" now points to the third element of the vector */
