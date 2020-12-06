@@ -46,7 +46,7 @@ main() {
 
 	/* since we stored the element in "point" now,
 	 * we can remove the third element without losing information */
-	acvector_remove(&vector, 2);
+	acvector_remove(&vector, 2, 1);
 
 	/* "point_ptr" still points to the third element */
 	printf("third point:\n(%2i,%2i)\n\n", point_ptr->x, point_ptr->y);
