@@ -84,7 +84,7 @@ acvector_remove(acVector** v, unsigned long i, unsigned long n_elements) {
 /* utility */
 unsigned long
 acvector_size(acVector** v) {
-	return sizeof (*v) + (*v)->limit * (*v)->size_of_element;
+	return sizeof (**v) + (*v)->limit * (*v)->size_of_element;
 }
 
 acVector*
