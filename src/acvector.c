@@ -5,7 +5,7 @@
 /* meta */
 acVector*
 acvector_create(unsigned long l, unsigned int soe) {
-	acVector* v = calloc(1, sizeof (acVector) + l * soe);
+	acVector* v = malloc(sizeof (acVector) + l * soe);
 	if(v) {
 		v->limit = l;
 		v->number_of_elements = 0;
@@ -79,4 +79,18 @@ acvector_remove(acVector** v, unsigned long i, unsigned long n_elements) {
 			(*v)->size_of_element * ((*v)->number_of_elements - i - n_elements));
 	(*v)->number_of_elements -= n_elements;
 	return;
+}
+
+/* utility */
+unsigned long
+acvector_size(acVector** v) {
+	return sizeof (*v) + (*v)->limit * (*v)->size_of_element;
+}
+
+acVector*
+acvector_copy(acVector** v) {
+	acVector* new = malloc(acvector_size(v));
+	if(!new) return NULL;
+	memcpy(new, *v, acvector_size(v));
+	return new;
 }

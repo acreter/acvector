@@ -13,19 +13,23 @@ struct acVector {
 /* --------------------------------------------------------- */
 
 /* meta */
-acVector* acvector_create       (unsigned long limit, unsigned int size_of_element);
-void      acvector_destroy      (acVector** vector);
+acVector*     acvector_create       (unsigned long limit, unsigned int size_of_element);
+void          acvector_destroy      (acVector** vector);
 
 /* access */
-void*     acvector_get_at       (acVector** vector, unsigned long index);
-void*     acvector_get_first    (acVector** vector);
-void*     acvector_get_last     (acVector** vector);
-void      acvector_copy_element (acVector** vector, void* dest, void* src);
+void*         acvector_get_at       (acVector** vector, unsigned long index);
+void*         acvector_get_first    (acVector** vector);
+void*         acvector_get_last     (acVector** vector);
+void          acvector_copy_element (acVector** vector, void* dest, void* src);
 
 /* modifiers */
-void      acvector_clear        (acVector** vector);
-void      acvector_insert       (acVector** vector, unsigned long index, void* elements, unsigned long number_of_elements);
-void      acvector_remove       (acVector** vector, unsigned long index, unsigned long number_of_elements);
+void          acvector_clear        (acVector** vector);
+void          acvector_insert       (acVector** vector, unsigned long index, void* elements, unsigned long number_of_elements);
+void          acvector_remove       (acVector** vector, unsigned long index, unsigned long number_of_elements);
+
+/* utility */
+unsigned long acvector_size         (acVector** vector);
+acVector*     acvector_copy         (acVector** vector);
 
 /* macros
  * vector  is of type acVector**
